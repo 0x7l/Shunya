@@ -24,12 +24,12 @@
 
 ### npm (Global)
 ```bash
-npm install -g shunya-recon
+npm install -g shunya
 
 Manual
 bash
 
-git clone https://github.com/yourusername/shunya.git
+git clone https://github.com/0x7l/shunya.git
 cd shunya
 npm install
 npm link  # For global access
@@ -67,8 +67,6 @@ Option	Description	Default
     bash
 
 shunya -d example.com
-
-https://screenshots/table-output.png
 
 Full Scan with JSON Export
 bash

@@ -1,66 +1,70 @@
 const PQueue = require('p-queue').default;
+const chalk = require('chalk');
 const { fetchFromCrtSh } = require('../modules/crtsh');
 const { fetchFromBufferOver } = require('../modules/bufferover');
-const { dnsResolve } = require('../modules/resolver');
+const { resolveMany } = require('../modules/resolver');
 const { httpProbe } = require('../modules/prober');
 const { fetchGeoInfo } = require('../modules/geoip');
-const { scanDirectories , loadWordlist } = require('../modules/dirscanner');
+const { scanDirectories, loadWordlist } = require('../modules/dirscanner');
 
 class ReconEngine {
   constructor(options) {
     this.options = options;
-    const concurrency = parseInt(options.threads) || 20;
-    this.queue = new PQueue({ concurrency });
+    this.queue = new PQueue({ concurrency: parseInt(options.threads) || 10 });
   }
 
   async run() {
-    // Subdomain Enumeration
-    const subdomains = await this.enumerateSubdomains();
+    const domain = this.options.domain;
 
+    // 🔎 Subdomain Enumeration
+    const subdomains = await this.enumerateSubdomains(domain);
 
-    // DNS Resolution
-    const resolved = [];
-    await Promise.all(
-      subdomains.map(sub => {
-        return this.queue.add(async () => {
-          const res = await dnsResolve(sub);
-          resolved.push({
-            subdomain: sub,
-            ip: res?.ip || null,
-            resolved: res?.resolved || false
-          });
-        });
-      })
-    );
+    // 🌐 DNS Resolution (via updated resolver.js)
+    const resolved = await resolveMany(subdomains, parseInt(this.options.threads));
 
-    // Active Probing: merge results into resolved array
+    // ✅ Logging DNS resolution in real-time
+    resolved.forEach(r => {
+      if (r.resolved) {
+        console.log(chalk.green(`[+] Resolved: ${r.subdomain} -> ${r.ip}`));
+      } else {
+        console.log(chalk.gray(`[-] Failed: ${r.subdomain}`));
+      }
+    });
+
+    // ⚡ HTTP Probing (optional)
     if (this.options.probe) {
       await Promise.all(
-        resolved.filter(r => r.resolved).map(async sub => {
-          const res = await httpProbe(sub.subdomain);
-          sub.statusCode = res?.status || null;
-          sub.title = res?.title || '';
-        })
+        resolved
+          .filter(r => r.resolved)
+          .map(sub => this.queue.add(async () => {
+            const probe = await httpProbe(sub.subdomain);
+            sub.statusCode = probe?.status || null;
+            sub.title = probe?.title || '';
+            if (sub.statusCode) {
+              console.log(chalk.cyan(`[+] HTTP ${sub.statusCode} - ${sub.subdomain}`));
+            }
+          }))
       );
     }
 
-
-    // GeoIP Lookup
+    // 🌍 GeoIP Lookup (optional)
     let geoip = {};
     if (this.options.geoip) {
-      const ips = [...new Set(resolved.filter(r => r.ip).map(r => r.ip))];
-      geoip = await fetchGeoInfo(ips);
+      const uniqueIps = [...new Set(resolved.map(r => r.ip).filter(Boolean))];
+      geoip = await fetchGeoInfo(uniqueIps);
     }
 
-    // Directory Scanning
+    // 📁 Directory Scanning (optional)
     let dirscan = [];
     if (this.options.dirscan) {
       let wordlist = [];
+
       if (typeof this.options.dirscan === 'string') {
         wordlist = loadWordlist(this.options.dirscan);
       } else if (Array.isArray(this.options.dirscan)) {
         wordlist = this.options.dirscan;
       }
+
       dirscan = await scanDirectories(
         resolved.filter(r => r.resolved),
         wordlist,
@@ -68,31 +72,31 @@ class ReconEngine {
       );
     }
 
+    // 📦 Final output
     return {
-      domain: this.options.domain,
+      domain,
+      timestamp: new Date().toISOString(),
       subdomains: resolved,
       geoip: this.options.geoip ? geoip : undefined,
-      dirscan: this.options.dirscan ? dirscan : undefined,
-      timestamp: new Date().toISOString()
+      dirscan: this.options.dirscan ? dirscan : undefined
     };
   }
 
-  async enumerateSubdomains() {
-    // Fetch from passive sources
-    const domain = this.options.domain;
-    let wordlist = [];
+  async enumerateSubdomains(domain) {
+    const passive1 = await fetchFromCrtSh(domain);
+    const passive2 = await fetchFromBufferOver(domain);
+
+    let wordlistSubs = [];
     if (this.options.wordlist) {
-      if (typeof this.options.wordlist === 'string') {
-        wordlist = loadWordlist(this.options.wordlist);
-      } else if (Array.isArray(this.options.wordlist)) {
-        wordlist = this.options.wordlist;
-      }
+      const wordlist =
+        typeof this.options.wordlist === 'string'
+          ? loadWordlist(this.options.wordlist)
+          : this.options.wordlist;
+
+      wordlistSubs = wordlist.map(w => `${w}.${domain}`);
     }
-    const crtshSubs = await fetchFromCrtSh(domain);
-    const buffSubs = await fetchFromBufferOver(domain);
-    const wordlistSubs = wordlist.map(w => `${w}.${domain}`);
-    // Merge and deduplicate
-    return Array.from(new Set([...crtshSubs, ...buffSubs, ...wordlistSubs]));
+
+    return Array.from(new Set([...passive1, ...passive2, ...wordlistSubs]));
   }
 }
 

@@ -1,0 +1,55 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports
+coverage/
+
+# Environment files
+.env
+.env.*.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Optional npm cache directory
+.npm/
+
+# Debug folders
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+
+# Temp files
+tmp/
+temp/
+
+# OS specific
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Local environment tools
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
