@@ -1,4 +1,4 @@
-![Shunya Banner](https://raw.githubusercontent.com/0x7l/Shunya/main/assets/banner.png)
+![Shunya Banner](https://raw.githubusercontent.com/0x7l/Shunya/main/assets/banner.PNG)
 
 # 🕵️ Shunya - Advanced Subdomain Reconnaissance Tool
 
