@@ -1,8 +1,7 @@
-![Shunya Banner](https://raw.githubusercontent.com/0x7l/Shunya/main/assets/banner.PNG)
-
 # 🕵️ Shunya - Advanced Subdomain Reconnaissance Tool
 
-![Shunya Logo](screenshots/logo.png) *(Optional: Add a logo later)*  
+![Shunya Banner](https://raw.githubusercontent.com/0x7l/Shunya/main/assets/banner.PNG)
+![Shunya Logo](assets/banner.png) *(Optional: Add a logo later)*  
 *A lightning-fast subdomain discovery tool with integrated probing, GeoIP lookup, and directory brute-forcing.*
 
 ---
