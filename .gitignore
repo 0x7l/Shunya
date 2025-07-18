@@ -53,3 +53,4 @@ temp/
 .env.development.local
 .env.test.local
 .env.production.local
+yahoo_output.csv
