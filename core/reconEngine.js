@@ -1,7 +1,7 @@
 const PQueue = require('p-queue').default;
 const chalk = require('chalk');
 const { fetchFromCrtSh } = require('../modules/crtsh');
-const { fetchFromBufferOver } = require('../modules/bufferover');
+const { fetchFromAlienVault } = require('../modules/alienvault');
 const { resolveMany } = require('../modules/resolver');
 const { httpProbe } = require('../modules/prober');
 const { fetchGeoInfo } = require('../modules/geoip');
@@ -10,7 +10,7 @@ const { scanDirectories, loadWordlist } = require('../modules/dirscanner');
 class ReconEngine {
   constructor(options) {
     this.options = options;
-    this.queue = new PQueue({ concurrency: parseInt(options.threads) || 10 });
+    this.queue = new PQueue({ concurrency: parseInt(options.threads) || 1 });
   }
 
   async run() {
@@ -84,7 +84,7 @@ class ReconEngine {
 
   async enumerateSubdomains(domain) {
     const passive1 = await fetchFromCrtSh(domain);
-    const passive2 = await fetchFromBufferOver(domain);
+    const passive2 = await fetchFromAlienVault(domain);
 
     let wordlistSubs = [];
     if (this.options.wordlist) {
