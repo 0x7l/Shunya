@@ -1,6 +1,7 @@
 # 🕵️ Shunya - Advanced Subdomain Reconnaissance Tool
 
-![Shunya Banner](https://raw.githubusercontent.com/0x7l/Shunya/main/assets/banner.PNG)
+![Shunya Logo](./assets/banner.PNG)
+
 *A lightning-fast subdomain discovery tool with integrated probing, GeoIP lookup, and directory brute-forcing.*
 
 ---
@@ -22,36 +23,33 @@
 
 ## 🚀 Installation
 
-### npm (Global)
-```bash
-npm install -g shunya
-
-Manual
-bash
-
+```
 git clone https://github.com/0x7l/shunya.git
+
 cd shunya
-npm install
-npm link  # For global access
 
-🛠 Usage
+cat requirements.txt | xargs npm install
+```
+
+## 🛠 Usage
 Basic Scan
-bash
 
-shunya -d example.com
+```shunya -d example.com```
 
-Full Reconnaissance
-bash
+## Full Reconnaissance
 
-shunya -d example.com \
+```
+  shunya -d example.com \
   --wordlist subdomains.txt \
   --probe \
   --geoip \
   --dirscan directories.txt \
   -o results.json \
   --format json
+```
 
-📌 Options
+## 📌 Options
+```
 Option	Description	Default
 -d, --domain	Target domain (required)	-
 -w, --wordlist	Subdomain wordlist path	-
@@ -61,27 +59,24 @@ Option	Description	Default
 --probe	Enable HTTP probing	false
 --geoip	Enable GeoIP lookup	false
 --dirscan	Directory brute-force wordlist	-
-🎯 Examples
+```
+## 🎯 Examples
 
-    Quick Scan with Table Output
-    bash
 
-shunya -d example.com
+```shunya -d example.com```
 
-Full Scan with JSON Export
-bash
+## Full Scan with JSON Export
 
-shunya -d example.com --probe --geoip -o results.json
+```shunya -d example.com --probe --geoip -o results.json```
 
-Wordlist Brute-Force
-bash
+## Wordlist Brute-Force
 
-    shunya -d example.com -w subdomains.txt
+```shunya -d example.com -w subdomains.txt```
 
-📂 Output Samples
-JSON Structure
-json
+## 📂 Output Samples
+## JSON Structure
 
+```
 {
   "domain": "example.com",
   "subdomains": [
@@ -106,17 +101,13 @@ json
     }
   }
 }
+```
 
-CSV Output
-text
 
-subdomain,ip,status
-mail.example.com,93.184.216.34,Resolved
-
-🛡 Security Considerations
-
+## 🛡 Security Considerations
+```
     Rate Limiting
-    Built-in throttling for API sources (CRT.sh, BufferOver)
+    Built-in throttling for API sources (CRT.sh, Alienvault)
 
     Legal Use
 
@@ -126,9 +117,9 @@ mail.example.com,93.184.216.34,Resolved
 
     Privacy
     GeoIP data is fetched from ip-api.com (non-commercial use)
-
-🤝 Contributing
-
+```
+## 🤝 Contributing
+```
     Fork the repository
 
     Create a feature branch (git checkout -b feature/amazing-feature)
@@ -138,6 +129,7 @@ mail.example.com,93.184.216.34,Resolved
     Push to branch (git push origin feature/amazing-feature)
 
     Open a Pull Request
+```
 
 📜 License
 
