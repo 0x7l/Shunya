@@ -2,7 +2,7 @@ const PQueue = require('p-queue').default;
 const chalk = require('chalk');
 const { fetchFromCrtSh } = require('../modules/crtsh');
 const { fetchFromAlienVault } = require('../modules/alienvault');
-const { resolveMany } = require('../modules/resolver');
+const { resolveDomains } = require('../modules/resolver');
 const { httpProbe } = require('../modules/prober');
 const { fetchGeoInfo } = require('../modules/geoip');
 const { scanDirectories, loadWordlist } = require('../modules/dirscanner');
@@ -19,10 +19,21 @@ class ReconEngine {
     // 🔎 Subdomain Enumeration
     const subdomains = await this.enumerateSubdomains(domain);
 
-    // 🌐 DNS Resolution (via updated resolver.js)
-    const resolved = await resolveMany(subdomains, parseInt(this.options.threads));
+    // DNS Resolution using massdns resolver
+    let resolved = [];
+    try {
+      const results = await resolveDomains(subdomains);
+      resolved = subdomains.map(sub => {
+        const match = results.find(r => r.domain === sub);
+        return match
+          ? { subdomain: sub, resolved: true, ip: match.ip }
+          : { subdomain: sub, resolved: false };
+      });
+    } catch (err) {
+      console.error(chalk.red(`[!] DNS resolution failed: ${err.message}`));
+    }
 
-    // ✅ Logging DNS resolution in real-time
+    //  Logging DNS resolution in real-time
     resolved.forEach(r => {
       if (r.resolved) {
         console.log(chalk.green(`[+] Resolved: ${r.subdomain} -> ${r.ip}`));
@@ -31,7 +42,7 @@ class ReconEngine {
       }
     });
 
-    // ⚡ HTTP Probing (optional)
+    // HTTP Probing (optional)
     if (this.options.probe) {
       await Promise.all(
         resolved
@@ -47,7 +58,7 @@ class ReconEngine {
       );
     }
 
-    // 🌍 GeoIP Lookup (optional)
+    //  GeoIP Lookup (optional)
     let geoip = {};
     if (this.options.geoip) {
       const uniqueIps = [...new Set(resolved.map(r => r.ip).filter(Boolean))];
@@ -72,7 +83,7 @@ class ReconEngine {
       );
     }
 
-    // 📦 Final output
+    //  Final output
     return {
       domain,
       timestamp: new Date().toISOString(),

@@ -29,6 +29,12 @@ git clone https://github.com/0x7l/shunya.git
 cd shunya
 
 cat requirements.txt | xargs npm install
+
+cd /utils/massdns
+
+make
+
+sudo cp bin/massdns /usr/local/bin
 ```
 
 ## 🛠 Usage
@@ -136,3 +142,9 @@ Option	Description	Default
 📜 License
 
 MIT © 0x7l
+
+## 🔗 Dependencies & Credits
+
+- **[massdns](https://github.com/blechschmidt/massdns)**  
+  Shunya uses massdns for high-performance DNS resolution.  
+  Credits to [@blechschmidt](https://github.com/blechschmidt) — Licensed under MIT
