@@ -33,7 +33,7 @@ cat requirements.txt | xargs npm install
 
 ## 🛠 Usage
 Basic Scan
-
+`cd /bin`
 ```shunya -d example.com```
 
 ## Full Reconnaissance
